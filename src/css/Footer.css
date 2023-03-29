@@ -1,0 +1,25 @@
+
+footer
+{
+    padding: 20px 100px;
+    background-color: rgb(174, 174, 209);
+}
+
+footer ul li
+{
+    list-style-type: none;
+    margin-left: -30px;
+}
+
+footer li a
+{
+    color: #2f2105;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+li a:hover 
+{
+    color: #34B520;
+}
