@@ -1,72 +1,166 @@
-import { useState } from "react";
+import { useState, useReducer } from "react";
 import React from 'react'
-import { AvailableTimes } from "../helpers/AvailableTimes";
+// import { AvailableTimes } from "../helpers/AvailableTimes";
 
-function BookingForm() {
-    const [resDate, setResDate] = useState("");
-    const [resTime, setResTime] = useState("");
-    const [guests,  setGuests] = useState("");
-    const [occasion, setOccasion] = useState("");
-    const [myList,setmyList] =  useState({date:resDate, time: resTime, number:guests,occasion: occasion});
+const initialTimeState = {
+  availableTimes: ['9:00am', '10:00am','11:00am','12:00noon','1:00pm','2:00pm','3:00pm','4:00pm','5:00pm'],
+};
+
+function timeReducer(state, action){
+  switch(action.type){
+    case 'INITIALIZE_TIMES':
+      return {
+        ...state,
+        availableTimes: action.payload
+      };
     
-    function handleSubmit(e)
-    {
+    case 'UPDATE_TIMES':
+      return {
+        ...state, 
+        availableTimes: action.payload
+      };
 
-        e.preventDefault();
-        // console.log(resDate);
-        // console.log(resTime);
-        // console.log(guests);
-        // console.log(occasion);
+      default:
+        throw new Error('Unsupported action type:');
+  }
+}
+function BookingForm() {
+  const [bookingData, setBookingData] = useState([]);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+  const [numOfGuests, setNumOfGuests] = useState("");
+  const [occasion, setOccasion] = useState("");
+  // const [availableTimes, setAvailableTimes] = useState([]);
+  const [timeState, timeDispatch] = useReducer(timeReducer, initialTimeState);
+  
 
-        setmyList([myList, {date:resDate, time:resTime, number:guests, occasion:occasion}]);
-        console.log(myList);
-        localStorage.setItem('mydata',myList);
+ const initialiseAvailableTimes = (selectedTime) => {
+    fetch('https://raw.githubusercontent.com/Meta-Front-End-Developer-PC/capstone/master/api.js')
+    .then(response => console.log(response))
+    .then(data => console.log(data))
+    .catch(error=> console.log(error));
+  
+  timeDispatch({type:'INITIALIZE_TIMES',payload:timeState.availableTimes});
+ }
+ const updateAvailableTimes = (selectedTime) => {
+    const updatedTimes = timeState.availableTimes.filter((time) => time !== selectedTime );
+
+      timeDispatch({type:'UPDATE_TIMES',payload:updatedTimes});
+      console.log(updatedTimes);
+ }
+
+  const handleDateChange = (event) => {
+     setSelectedDate(event.target.value);
+    initialiseAvailableTimes(setSelectedDate);
+  };
+
+  const handleTimeChange = (event) => {
+    setSelectedTime(event.target.value);
+  };
+
+  const handleNumOfGuestsChange = (event) => {
+    setNumOfGuests(event.target.value);
+  };
+  const handleOccasionChange = (event) => {
+    setOccasion(event.target.value);
+  };
+
+  const handleBookingSubmit = (event) => {
+    event.preventDefault();
+    // Check if the selected time for the selected date is already booked
+    const isTimeBooked = bookingData.some(
+      (booking) =>
+      booking.date === selectedDate && booking.time === selectedTime
+    );
+    if (isTimeBooked) {
+      alert("This time is already booked. Please select another time.");
+      updateAvailableTimes(selectedTime);
+      return;
     }
-    return (
-    <div className='bookingForm'>
-        <div className=' p-4'>
-                <h5 className=''>Reserve a table</h5>
-                <hr />
-                <form action='' method=''>
-                    <div className="form-group">
-                      <label htmlFor="">Date: </label>
-                      <input type="date" onChange={(e) => {setResDate(e.target.value)}} name="res-date" id="res-date" className="form-control" placeholder="" />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor=""> Reservation Time</label>
-                      <select className="form-control" name="" id="res-time" onChange={(e) => {setResTime(e.target.value)}}>
-                        {
-                          AvailableTimes.map((timelist, key) => {
-                            return <option>{timelist.name}</option>
-                          })
-                        }
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="">Number of guests</label>
-                      <input type="number" name="" id="guests" onChange={(e) => {setGuests(e.target.value)}} className="form-control" placeholder="" />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="">Occasion</label>
-                      <select className="form-control" name="" id="occasion" onChange={(e) => {setOccasion(e.target.value)}}>
-                        <option>Select occasion</option>
-                        <option>Birthday</option>
-                        <option>Anniversary</option>
-                      </select>
+    else {
+      initialiseAvailableTimes(selectedTime);
+    }
+    // Add the booking data to the booking data array
+    setBookingData([
+      ...bookingData,
+      {
+      date: selectedDate,
+      time: selectedTime,
+      numOfGuests: numOfGuests,
+      occasion: occasion
+      },
+    ]);
+    // Clear the form inputs
+    setSelectedDate("");
+    setSelectedTime("");
+    setNumOfGuests("");
+    setOccasion("");
+  };
 
-                      <button type="submit" className='btn btn-sm btn-success mt-3' onClick={handleSubmit}>Submit reservation</button>
-                    </div>
-                </form>
+  return (
+  <div className='p-3'>
+    {/* <div className='container'> */}
+      <h2>Table Booking</h2>
+      <form className='mt-3' onSubmit={handleBookingSubmit}>
+        <div className='form-group'>
+          <label>Select a date:</label>
+          <input type="date" className='form-control' value={selectedDate} onChange={handleDateChange} />
+        </div>
 
-                <table>
-                  <tbody>
-                    {
-                      myList.time
-                    }
-                  </tbody>
-                </table>
-            </div>
-    </div>
+        <div className='form-group'>
+          <label>Select a time:</label>
+          <select className='form-control' value={selectedTime} onChange={handleTimeChange}>
+            <option value="">--Please select a time--</option>
+            {
+              timeState.availableTimes.map((time) => {
+                return <option key={time}>{time}</option>
+              }     
+              )
+            }
+          </select>
+        </div>
+        
+        <div className='form-group'>
+          <label>Number of guests:</label>
+          <input type="number" className='form-control' value={numOfGuests} onChange={handleNumOfGuestsChange}/>
+        </div>
+
+        <div className='form-group'>
+          <label>Select Occasion</label>
+          <select className='form-control' onChange={handleOccasionChange}>
+            <option>--Please select occasion</option>
+            <option>Birthday</option>
+            <option>Anniversary</option>
+
+          </select>
+        </div>
+        
+        <button className='btn btn-success mt-2' type="submit">Book</button>
+      </form>
+    {/* </div> */}
+
+    <h3 className="mt-5">Bookings:</h3>
+    <table class="table" border="1">
+      <thead className="bg-success text-white">
+        <tr>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Number of guests</th>
+          <th>Occasion</th>
+        </tr>
+      </thead>
+      <tbody>
+      {bookingData.map((booking) => (
+      <tr key={booking.date + booking.time}>
+        <td>{booking.date}</td>
+        <td>{booking.time}</td>
+        <td>{booking.numOfGuests}</td>
+        <td>{booking.occasion}</td>
+      </tr>
+      ))}
+      </tbody>
+    </table>
+  </div>
   )
 }
 

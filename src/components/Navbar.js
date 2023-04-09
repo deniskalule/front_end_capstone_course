@@ -22,7 +22,7 @@ function Navbar() {
                 <li><a href='/' className='navbar-items'>Home</a></li>
                 <li><a href='/menu' className='navbar-items'>Menu</a></li>
                 <li><a href='/about' className='navbar-items'>About</a></li>
-                <li><a href='/reserve' className='navbar-items'>Reservations</a></li>
+                <li><a href='/booking_page' className='navbar-items'>Reservations</a></li>
                 <li><a href='/order' className='navbar-items'>Order online</a></li>
                 <li><a href='/login' className='navbar-items'>Login</a></li>
                 <button onClick={toggleNavbar}>
@@ -34,7 +34,7 @@ function Navbar() {
             <li><a href='/' className='navbar-items'>Home</a></li>
             <li><a href='/menu' className='navbar-items'>Menu</a></li>
             <li><a href='/about' className='navbar-items'>About</a></li>
-            <li><a href='/reserve' className='navbar-items'>Reservations</a></li>
+            <li><a href='/booking_page' className='navbar-items'>Reservations</a></li>
             <li><a href='/order' className='navbar-items'>Order online</a></li>
             <li><a href='/login' className='navbar-items'>Login</a></li>
             

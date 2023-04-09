@@ -1,0 +1,21 @@
+.menu
+{
+    margin-top: 50px;
+}
+
+.menulist
+{
+    margin: 20px;
+}
+
+
+.menulist .card
+{
+    margin-top: 30px;
+
+}
+
+.menulist .card img
+{
+    height: 200px;
+}
